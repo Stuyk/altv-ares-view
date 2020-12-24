@@ -113,7 +113,15 @@ export default {
           }
       },
       openURL(url) {
-          window.open(url);
+          if (this.window) {
+            try {
+              this.window.close();
+            } catch(err) {
+              console.log(err);
+            }
+          }
+
+          this.window = window.open(url);
       },
       loadAthena() {
           window.open(`https://github.com/stuyk/altv-athena`);
@@ -123,14 +131,21 @@ export default {
               this.setAsReady();
           });
       },
-      fadeToBlack() {
-          this.done = true;
+      endWindow() {
+          if (this.window) {
+            try {
+              this.window.close();
+            } catch(err) {
+              console.log(err);
+            }
+          }
+
       }
   },
   mounted() {
     if ('alt' in window) {
         alt.on('discord:OpenURL', this.openURL);
-        alt.on('discord:FadeToBlack', this.fadeToBlack);
+        alt.on('discord:endWindow', this.endWindow);
     }
 
     this.finishedLoading();
