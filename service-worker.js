@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/altv-ares-view/precache-manifest.8e142ca34b79f22ad185d1a9df4e0906.js"
+  "/altv-ares-view/precache-manifest.57c0ab561be58373eb30d131af20cc04.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "altv-ares-view"});
