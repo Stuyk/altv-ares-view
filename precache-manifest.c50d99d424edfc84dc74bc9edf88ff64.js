@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "3d529063ae17193dca25",
+    "revision": "82fb862f3179fad16583",
     "url": "/altv-ares-view/css/app.e691b40c.css"
   },
   {
@@ -16,12 +16,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/altv-ares-view/img/discord.1c8a54f2.svg"
   },
   {
-    "revision": "75b47a5b726e1923dd9f623e0cd929f9",
+    "revision": "6725bc2d1f42226b954e877838edd3d5",
     "url": "/altv-ares-view/index.html"
   },
   {
-    "revision": "3d529063ae17193dca25",
-    "url": "/altv-ares-view/js/app.863aa720.js"
+    "revision": "82fb862f3179fad16583",
+    "url": "/altv-ares-view/js/app.4addc159.js"
   },
   {
     "revision": "7f5cfe6ef5bb650876b7",
