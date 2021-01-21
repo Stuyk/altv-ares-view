@@ -2,7 +2,7 @@
     <v-app dark>
         <v-main>
             <v-container class="main d-flex flex-column align-content-center align-center justify-center fadein">
-                <template v-if="!loading">
+                <template v-if="!loading && !waitingForAuth">
                     <v-img
                         class="mb-12"
                         src="~@/assets/discord.svg"
@@ -13,32 +13,32 @@
                         block
                     ></v-img>
                     <v-btn @mouseup="beginAuth">Click Here to Authorize with Discord</v-btn>
-                    <p class="mt-6">A page will open up outside of your game and assist you with logging in.</p>
+                    <p class="mt-6" v-if="!errorMessage">
+                        A page will open up outside of your game and assist you with logging in.
+                    </p>
+                    <p class="mt-6 light-blue--text text-h6 font-weight-black text-center" v-else>
+                        {{ errorMessage }} <br />
+                        Try again...
+                    </p>
                 </template>
-                <template v-else>
+                <template v-if="loading && waitingForAuth">
+                    <div class="lds-ring mb-12">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                </template>
+                <template v-if="!loading && waitingForAuth">
                     <div class="fadein d-flex flex-column align-content-center align-center justify-center">
-                        <template v-if="!isPortless">
-                            <div class="lds-ring mb-12">
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                            </div>
-                            <p>
-                                Tab out and check your browser to finish authentication. <br />If it failed try opening
-                                the window again. <a @mousedown="authAgain">Re-open Window.</a>
-                            </p>
-                        </template>
-                        <template v-else>
-                            <p>
-                                Tab out and check your browser to finish authentication. <br />If it failed try opening
-                                the window again. <a @mousedown="authAgain">Re-open Window.</a>
-                            </p>
-                            <span class="text-sm-subtitle-2 pt-1 pb-5">
-                                Note: If pressed before authorization complete. Nothing will happen.
-                            </span>
-                            <v-btn @mouseup="finishAuth">Finish Authorization</v-btn>
-                        </template>
+                        <p>
+                            Tab out and check your browser to finish authentication. <br />If it failed try opening the
+                            window again. <a @mousedown="authAgain">Re-open Window.</a>
+                        </p>
+                        <span class="text-sm-subtitle-2 pt-1 pb-5">
+                            Note: If pressed before authorization complete. Nothing will happen.
+                        </span>
+                        <v-btn @mouseup="finishAuth">Finish Authorization</v-btn>
                     </div>
                 </template>
                 <p class="context mt-6">Ares Discord Authentication - Written by <a @click="loadAthena">Stuyk</a></p>
@@ -51,12 +51,18 @@
 body,
 html {
     overflow: hidden !important;
+    background: url('~@/assets/bg.png') no-repeat center center fixed !important;
+    background-size: cover;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+}
+
+* {
+    user-select: none;
 }
 
 .v-application {
-    background: url('~@/assets/bg.png') no-repeat center center fixed !important;
-    background-size: stretch;
-    background-repeat: no-repeat;
+    background: transparent !important;
 }
 
 .main {
@@ -131,9 +137,10 @@ export default {
         return {
             url: null,
             loading: false,
-            isPortless: false,
             done: false,
-            updates: 0
+            updates: 0,
+            waitingForAuth: false,
+            errorMessage: null
         };
     },
     methods: {
@@ -145,28 +152,33 @@ export default {
         beginAuth() {
             setTimeout(() => {
                 this.getURL();
-                this.loading = true;
+                this.errorMessage = null;
                 this.updates += 1;
             }, 100);
         },
         finishAuth() {
-            if (!this.isPortless) {
-                return;
-            }
+            this.loading = true;
+            this.updates += 1;
 
             if ('alt' in window) {
                 alt.emit('discord:FinishAuth');
+            } else {
+                setTimeout(() => {
+                    this.fail('Testing fail message');
+                }, 2000);
             }
         },
         authAgain() {
             this.getURL();
         },
         getURL() {
+            this.waitingForAuth = true;
+
             if ('alt' in window) {
                 alt.emit('discord:OpenURL');
             }
         },
-        openURL(url, isPortless = false) {
+        openURL(url) {
             if (this.window) {
                 try {
                     this.window.close();
@@ -175,7 +187,6 @@ export default {
                 }
             }
 
-            this.isPortless = isPortless;
             this.window = window.open(url);
         },
         loadAthena() {
@@ -194,12 +205,18 @@ export default {
                     console.log(err);
                 }
             }
+        },
+        fail(message) {
+            this.errorMessage = message;
+            this.waitingForAuth = false;
+            this.loading = false;
         }
     },
     mounted() {
         if ('alt' in window) {
             alt.on('discord:OpenURL', this.openURL);
             alt.on('discord:endWindow', this.endWindow);
+            alt.on('discord:Fail', this.fail);
         }
 
         this.finishedLoading();
