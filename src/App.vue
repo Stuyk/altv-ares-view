@@ -35,10 +35,17 @@
                             Tab out and check your browser to finish authentication. <br />If it failed try opening the
                             window again. <a @mousedown="authAgain">Re-open Window.</a>
                         </p>
-                        <span class="text-sm-subtitle-2 pt-1 pb-5">
-                            Note: If pressed before authorization complete. Nothing will happen.
-                        </span>
-                        <v-btn @mouseup="finishAuth">Finish Authorization</v-btn>
+                        <template v-if="readyToFinish">
+                            <v-btn @mouseup="finishAuth">Finish Authorization</v-btn>
+                        </template>
+                        <template v-else>
+                            <div class="lds-ring">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </template>
                     </div>
                 </template>
                 <p class="context mt-6">Ares Discord Authentication - Written by <a @click="loadAthena">Stuyk</a></p>
@@ -140,7 +147,8 @@ export default {
             done: false,
             updates: 0,
             waitingForAuth: false,
-            errorMessage: null
+            errorMessage: null,
+            readyToFinish: false
         };
     },
     methods: {
@@ -155,6 +163,11 @@ export default {
                 this.errorMessage = null;
                 this.updates += 1;
             }, 100);
+
+            setTimeout(() => {
+                this.readyToFinish = true;
+                this.updates += 1;
+            }, 3000);
         },
         finishAuth() {
             this.loading = true;
